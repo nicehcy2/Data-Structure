@@ -1,0 +1,237 @@
+#include <ncurses.h>
+#include <stdio.h>
+
+void mainPage();
+void enterPage();
+void startPage(char, bool);
+void printPage(char c);
+void registerPage();
+void loginPage();
+
+bool flag = false;
+
+int main(int argc, char const *argv[]) {
+    initscr();
+
+    if (has_colors() == FALSE) {
+        puts("Terminal does not support colors!");
+        endwin();
+        return 1;
+    } else {
+        start_color();
+        init_pair(1, COLOR_BLUE, COLOR_WHITE);
+        init_pair(2, COLOR_WHITE, COLOR_BLUE);
+    }
+    refresh();
+
+    char key;
+    while (true) {
+        curs_set(0);
+        keypad(stdscr, TRUE);
+        noecho();
+
+        mainPage();
+        key = getch();
+        if (key == 27)
+            break;
+        // else if (key == KEY_UP || key == KEY_DOWN)
+        // updownPage(key);
+        else if (key == 52 || key == 54)
+        {
+            startPage(key, flag);
+        }
+        else if (key == 10)
+            enterPage();
+        else
+            printPage(key);
+        clear();
+        refresh();
+
+        mainPage();
+    }
+
+    endwin();
+
+    return 0;
+}
+
+void mainPage() {
+    WINDOW *win1 = newwin(24, 80, 0, 0);
+    WINDOW *win2 = newwin(6, 80, 18, 0);
+
+    wbkgd(win1, COLOR_PAIR(1));
+    wbkgd(win2, COLOR_PAIR(2));
+
+    mvwprintw(win1, 6, 37, "Login");
+    mvwprintw(win1, 9, 37, "Sign up");
+    wrefresh(win1);
+    wrefresh(win2);
+}
+
+void enterPage() {
+    WINDOW *win1 = newwin(18, 80, 0, 0);
+    WINDOW *win2 = newwin(6, 80, 18, 0);
+
+    wbkgd(win1, COLOR_PAIR(1));
+    wbkgd(win2, COLOR_PAIR(2));
+
+    mvwprintw(win1, 8, 37, "Enter");
+    mvwprintw(win1, 9, 34, "Press any key");
+    wrefresh(win1);
+    wrefresh(win2);
+
+    getch();
+}
+
+void startPage(char key, bool flag) {
+    curs_set(0);
+
+    WINDOW *win1 = newwin(24, 80, 0, 0);
+    WINDOW *win2 = newwin(6, 80, 18, 0);
+
+    wbkgd(win1, COLOR_PAIR(1));
+    wbkgd(win2, COLOR_PAIR(2));
+
+    mvwprintw(win1, 6, 37, "Login");
+    mvwprintw(win1, 9, 37, "Sign up");
+
+    if (key == 54) {
+        if (flag == true) {
+            mvwprintw(win1, 6, 35, "> ");
+        }
+        else if (flag == false)
+            mvwprintw(win1, 9, 35, "> ");
+    }
+    if (key == 52){
+        if (flag == true) {
+            mvwprintw(win1, 6, 35, "> ");
+        } else if (flag == false)
+            mvwprintw(win1, 9, 35, "> ");
+    }
+    if (flag == false)
+        flag = true;
+    else if (flag == true)
+        flag = false;
+
+    wrefresh(win1);
+    wrefresh(win2);
+
+    key = getch();
+    if (key == 52 || key == 54){
+        startPage(key, flag);
+    }
+    else if (key == 10){
+        if (flag == false){
+            //temporary
+            enterPage();
+        }
+        if (flag == true) {
+            registerPage();
+        }
+    }
+    else if (key == 27){
+        clear();
+        refresh();
+        endwin();
+    } else
+        return;
+}
+
+void printPage(char c) {
+    curs_set(1);
+
+    WINDOW *win1 = newwin(18, 80, 0, 0);
+    WINDOW *win2 = newwin(6, 80, 18, 0);
+    char key;
+
+    wbkgd(win1, COLOR_PAIR(1));
+    wbkgd(win2, COLOR_PAIR(2));
+
+    mvwprintw(win1, 8, 33, "Print 10 words");
+    wrefresh(win2);
+    wrefresh(win1);
+
+    move(18, 0);
+    for (int i = 0; i < 10; i++) {
+        key = getch();
+        wprintw(win2, "%c", key);
+        wrefresh(win2);
+    }
+    mvwprintw(win1, 9, 29, "End print press any key");
+    wrefresh(win1);
+
+    getch();
+}
+
+void registerPage()
+{
+    int arrowKey = 0;
+    char key;
+
+    WINDOW *win1 = newwin(18, 80, 0, 0);
+    WINDOW *win2 = newwin(6, 80, 18, 0);
+
+    wbkgd(win1, COLOR_PAIR(1));
+    wbkgd(win2, COLOR_PAIR(2));
+
+    mvwprintw(win1, 6, 33, "name: ");
+    mvwprintw(win1, 8, 33, "ID: ");
+    mvwprintw(win1, 10, 33, "PW: ");
+    mvwprintw(win1, 14, 37, "Sign up");
+
+    wrefresh(win1);
+    wrefresh(win2);
+
+    curs_set(0);
+    while(true){
+        mvwprintw(win1, 14, 35, "  ");
+
+        key = getch();
+        if (key == 52) {
+            if (arrowKey == 3)
+                arrowKey = 0;
+            else
+                arrowKey++;
+        }
+        if (key == 54) {
+            if (arrowKey == 0)
+                arrowKey = 3;
+            else
+                arrowKey--;
+        }
+
+        switch (arrowKey) {
+        case 0:
+            curs_set(1);
+            move(6, 40);
+            wrefresh(win1);
+            wrefresh(win2);
+            break;
+        case 1:
+            curs_set(1);
+            move(8, 38);
+            wrefresh(win1);
+            wrefresh(win2);
+            break;
+        case 2:
+            curs_set(1);
+            move(10, 38);
+            wrefresh(win1);
+            wrefresh(win2);
+            break;
+        case 3:
+            curs_set(0);
+            mvwprintw(win1, 14, 35, "> ");
+            wrefresh(win1);
+            break;
+        }
+
+        if (key == 27){
+            break;
+        }
+    }
+
+    wrefresh(win1);
+    wrefresh(win2);
+    mainPage();
+}
